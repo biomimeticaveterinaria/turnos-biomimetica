@@ -183,6 +183,77 @@
       transition: 0.2s;
     }
     .btn-submit:hover { background-color: var(--primary-dark); }
+
+    /* Pantalla de Confirmación */
+    .confirmation-container {
+      padding: 25px 20px;
+      text-align: center;
+      display: none;
+    }
+    .success-icon {
+      width: 65px;
+      height: 65px;
+      background-color: #e6f4f4;
+      color: var(--primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 15px;
+      border: 3px solid var(--primary);
+    }
+    .confirm-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 5px;
+    }
+    .confirm-subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .details-box {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 16px;
+      padding: 15px;
+      text-align: left;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+    .details-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .details-row:last-child { border-bottom: none; }
+    .details-label { color: #64748b; font-weight: 600; }
+    .details-value { color: var(--text); font-weight: 700; text-align: right; }
+
+    .location-info {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .btn-reset {
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 12px;
+      border-radius: 16px;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -192,10 +263,11 @@
     <img src="logo1.jpg.jpeg" alt="BIOMIMÉTICA Diagnósticos Veterinarios">
   </div>
 
-  <div class="title-banner">
+  <div class="title-banner" id="bannerTitle">
     📅 Agenda de Turnos
   </div>
 
+  <!-- FORMULARIO DE RESERVA -->
   <form id="bookingForm" class="form-body" onsubmit="enviarTurno(event)">
     
     <!-- Paso 1: Tipo de Estudio -->
@@ -301,6 +373,45 @@
 
     <button type="submit" class="btn-submit">CONFIRMAR Y AGENDAR TURNO</button>
   </form>
+
+  <!-- PANTALLA DE CONFIRMACIÓN LOCAL -->
+  <div class="confirmation-container" id="confirmationCard">
+    <div class="success-icon">✓</div>
+    <div class="confirm-title">¡Turno Registrado!</div>
+    <div class="confirm-subtitle">Su solicitud ha sido reservada correctamente.</div>
+
+    <div class="details-box">
+      <div class="details-row">
+        <span class="details-label">📅 Fecha:</span>
+        <span class="details-value" id="cFecha">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">⏰ Horario:</span>
+        <span class="details-value" id="cHora">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">🧪 Estudio:</span>
+        <span class="details-value" id="cEstudio">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">🐾 Mascota:</span>
+        <span class="details-value" id="cMascota">-</span>
+      </div>
+      <div class="details-row">
+        <span class="details-label">👤 Tutor:</span>
+        <span class="details-value" id="cTutor">-</span>
+      </div>
+    </div>
+
+    <div class="location-info">
+      📍 <b>Ubicación del laboratorio:</b><br>
+      Sta. Fe 2158, Posadas, Misiones.<br><br>
+      <span id="cAyunoNotice"></span>
+    </div>
+
+    <button type="button" class="btn-reset" onclick="resetFormulario()">Reservar otro turno</button>
+  </div>
+
 </div>
 
 <script>
@@ -368,9 +479,8 @@
   function enviarTurno(event) {
     event.preventDefault();
 
-    const fecha = document.getElementById('fechaTurno').value;
-
-    if (!fecha) {
+    const fechaVal = document.getElementById('fechaTurno').value;
+    if (!fechaVal) {
       alert('Por favor selecciona el día para el turno.');
       return;
     }
@@ -380,7 +490,47 @@
       return;
     }
 
-    window.open("https://calendar.app.google/L5FYceufNSvzj2sWA", "_blank");
+    const tutor = document.getElementById('tutor').value;
+    const mascota = document.getElementById('mascota').value;
+    const tipoMascota = document.getElementById('tipoMascota').value;
+    const estudio = document.getElementById('tipoEstudio').value;
+
+    // Formatear Fecha (AAAA-MM-DD -> DD/MM/AAAA)
+    const partesFecha = fechaVal.split('-');
+    const fechaFormateada = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+
+    // Completar pantalla de confirmación
+    document.getElementById('cFecha').innerText = fechaFormateada;
+    document.getElementById('cHora').innerText = `${selectedHora} hs`;
+    document.getElementById('cEstudio').innerText = estudio.split(' - ')[0];
+    document.getElementById('cMascota').innerText = `${mascota} (${tipoMascota})`;
+    document.getElementById('cTutor').innerText = tutor;
+
+    const ayunoText = document.getElementById('cAyunoNotice');
+    if (estudio.includes('Ayuno')) {
+      ayunoText.innerHTML = '⚠️ <b>Recordatorio:</b> Presentarse con <b>8 a 12 hs de ayuno sólido</b> (solo agua permitida).';
+    } else {
+      ayunoText.innerHTML = '✨ <i>Este estudio no requiere ayuno previo.</i>';
+    }
+
+    // Cambiar vista
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('confirmationCard').style.display = 'block';
+    document.getElementById('bannerTitle').innerText = '✅ Turno Confirmado';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetFormulario() {
+    document.getElementById('bookingForm').reset();
+    document.getElementById('bookingForm').style.display = 'block';
+    document.getElementById('confirmationCard').style.display = 'none';
+    document.getElementById('bannerTitle').innerText = '📅 Agenda de Turnos';
+    
+    // Restablecer selección inicial
+    selectStudy(document.querySelectorAll('.study-btn')[0], 'BIOQUÍMICO - Ayuno Obligatorio');
+    document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected', 'disabled'));
+    selectedHora = '';
   }
 </script>
 
