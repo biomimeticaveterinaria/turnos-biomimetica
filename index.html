@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reserva de Turnos - BIOMIMÉTICA Diagnósticos Veterinarios</title>
+  <style>
+    :root {
+      --primary: #008a8a;
+      --primary-dark: #006666;
+      --orange: #d96b18;
+      --bg-gray: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --border: #dcdfe6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      background-color: var(--bg-gray);
+      display: flex;
+      justify-content: center;
+      padding: 15px;
+    }
+
+    .booking-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 420px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      overflow: hidden;
+      border: 1px solid #e1e8ed;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 20px 15px 10px;
+    }
+    .logo-placeholder {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      color: #7f8c8d;
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    .title-banner {
+      background-color: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      font-weight: 600;
+      font-size: 18px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .form-body { padding: 18px; }
+
+    /* Pasos */
+    .step-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    /* Selector de Tipo de Estudio */
+    .study-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .study-btn {
+      border: 2px solid var(--border);
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      color: #555;
+      transition: all 0.2s;
+    }
+    .study-btn.active {
+      background-color: var(--orange);
+      border-color: var(--orange);
+      color: white;
+    }
+
+    /* Horarios disponibles aviso */
+    .schedule-box {
+      background-color: #e6f4f4;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #005c5c;
+      margin-bottom: 15px;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin: 12px 0 8px;
+    }
+
+    /* Grilla de Horarios */
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .time-slot {
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 10px;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .time-slot.selected {
+      background-color: #ffe6d5;
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* Alerta de Ayuno */
+    .alert-box {
+      background-color: #fff4e5;
+      border: 1px solid #ffe0b2;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 11px;
+      color: #b76e00;
+      margin: 15px 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Formulario de Datos */
+    .input-group { margin-bottom: 12px; }
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      background-color: #fcfcfc;
+    }
+    .input-group input:focus { border-color: var(--primary); }
+
+    /* Botón Submit */
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0,138,138,0.3);
+      transition: 0.2s;
+    }
+    .btn-submit:hover { background-color: var(--primary-dark); }
+  </style>
+</head>
+<body>
+
+<div class="booking-card">
+  <div class="header">
+    <div class="logo-placeholder">BIOMIMÉTICA</div>
+    <div class="subtitle">Salud, Ciencia y Tecnología | Diagnósticos Veterinarios</div>
+  </div>
+
+  <div class="title-banner">
+    📅 Agenda de Turnos
+  </div>
+
+  <form id="bookingForm" class="form-body" onsubmit="enviarTurno(event)">
+    
+    <div class="step-title">Paso 1: Selecciona el tipo de estudio</div>
+    <div class="study-options">
+      <div class="study-btn active" onclick="selectStudy(this, 'BIOQUÍMICO - Ayuno Obligatorio')">
+        ✓ BIOQUÍMICO<br><small>Ayuno Obligatorio</small>
+      </div>
+      <div class="study-btn" onclick="selectStudy(this, 'OTROS - Sin Ayuno')">
+        OTROS<br><small>Sin Ayuno</small>
+      </div>
+    </div>
+    <input type="hidden" id="tipoEstudio" value="BIOQUÍMICO - Ayuno Obligatorio">
+
+    <div class="step-title">Paso 2: Horarios Disponibles</div>
+    <div class="schedule-box">
+      📅 Lunes a Viernes<br>
+      • Sábados 9:00 - 12:00hs
+    </div>
+
+    <div class="section-label">☀️ Mañana</div>
+    <div class="time-grid">
+      <div class="time-slot" onclick="selectTime(this)">8:00</div>
+      <div class="time-slot" onclick="selectTime(this)">8:15</div>
+      <div class="time-slot" onclick="selectTime(this)">8:30</div>
+      <div class="time-slot" onclick="selectTime(this)">8:45</div>
+      <div class="time-slot" onclick="selectTime(this)">9:00</div>
+      <div class="time-slot" onclick="selectTime(this)">9:15</div>
+      <div class="time-slot" onclick="selectTime(this)">9:30</div>
+      <div class="time-slot" onclick="selectTime(this)">9:45</div>
+    </div>
+
+    <div class="section-label">🌙 Tarde</div>
+    <div class="time-grid">
+      <div class="time-slot" onclick="selectTime(this)">16:00</div>
+      <div class="time-slot" onclick="selectTime(this)">16:15</div>
+      <div class="time-slot" onclick="selectTime(this)">16:30</div>
+      <div class="time-slot" onclick="selectTime(this)">16:45</div>
+      <div class="time-slot" onclick="selectTime(this)">17:00</div>
+      <div class="time-slot" onclick="selectTime(this)">17:15</div>
+      <div class="time-slot" onclick="selectTime(this)">17:30</div>
+      <div class="time-slot" onclick="selectTime(this)">17:45</div>
+    </div>
+    <input type="hidden" id="horarioSeleccionado" required>
+
+    <div class="alert-box" id="alertaAyuno">
+      ⚠️ <b>Aviso Importante:</b> Los estudios bioquímicos requieren ayuno sólido de 8-12hs. Solo se permite agua.
+    </div>
+
+    <div class="input-group">
+      <label for="tutor">Nombre del tutor</label>
+      <input type="text" id="tutor" placeholder="Ingresa el nombre completo" required>
+    </div>
+
+    <div class="input-group">
+      <label for="mascota">Mascota</label>
+      <input type="text" id="mascota" placeholder="Nombre de la mascota" required>
+    </div>
+
+    <div class="input-group">
+      <label for="tipoMascota">Tipo de mascota</label>
+      <select id="tipoMascota" required>
+        <option value="">Selecciona opción</option>
+        <option value="Perro">Perro</option>
+        <option value="Gato">Gato</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+
+    <div class="input-group">
+      <label for="motivo">Motivo de consulta</label>
+      <input type="text" id="motivo" placeholder="Breve descripción (ej. Análisis prequirúrgico)">
+    </div>
+
+    <button type="submit" class="btn-submit">CONFIRMAR Y AGENDAR TURNO</button>
+  </form>
+</div>
+
+<script>
+  let selectedHora = '';
+
+  function selectStudy(element, valor) {
+    document.querySelectorAll('.study-btn').forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById('tipoEstudio').value = valor;
+
+    const alerta = document.getElementById('alertaAyuno');
+    if (valor.includes('Ayuno')) {
+      alerta.style.display = 'flex';
+    } else {
+      alerta.style.display = 'none';
+    }
+  }
+
+  function selectTime(element) {
+    document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+    element.classList.add('selected');
+    selectedHora = element.innerText;
+    document.getElementById('horarioSeleccionado').value = selectedHora;
+  }
+
+  function enviarTurno(event) {
+    event.preventDefault();
+
+    if (!selectedHora) {
+      alert('Por favor selecciona un horario disponible.');
+      return;
+    }
+
+    const estudio = document.getElementById('tipoEstudio').value;
+    const tutor = document.getElementById('tutor').value;
+    const mascota = document.getElementById('mascota').value;
+    const tipo = document.getElementById('tipoMascota').value;
+    const motivo = document.getElementById('motivo').value;
+
+    // Redirección directa a WhatsApp con el mensaje estructurado para el laboratorio
+    const telefonoLab = "5490000000000"; // Reemplaza con el WhatsApp del laboratorio
+    const mensaje = `*SOLICITUD DE TURNO - BIOMIMÉTICA*%0A%0A` +
+      `*Estudio:* ${estudio}%0A` +
+      `*Horario deseado:* ${selectedHora} hs%0A` +
+      `*Tutor:* ${tutor}%0A` +
+      `*Mascota:* ${mascota} (${tipo})%0A` +
+      `*Motivo:* ${motivo}`;
+
+    window.open(`https://wa.me/${telefonoLab}?text=${mensaje}`, '_blank');
+  }
+</script>
+
+</body>
+</html>
