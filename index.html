@@ -52,10 +52,6 @@
       padding: 12px;
       font-weight: 600;
       font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
     .form-body { padding: 18px; }
@@ -131,6 +127,13 @@
       background-color: #ffe6d5;
       border-color: var(--orange);
       color: var(--orange);
+    }
+    .time-slot.disabled {
+      background-color: #e9ecef;
+      color: #adb5bd;
+      border-color: #dee2e6;
+      cursor: not-allowed;
+      text-decoration: line-through;
     }
 
     .alert-box {
@@ -212,7 +215,7 @@
     
     <div class="input-group">
       <label for="fechaTurno">Selecciona el día del turno</label>
-      <input type="date" id="fechaTurno" required>
+      <input type="date" id="fechaTurno" onchange="actualizarDisponibilidad()" required>
     </div>
 
     <div class="schedule-box">
@@ -223,45 +226,44 @@
 
     <div class="section-label">☀️ Mañana</div>
     <div class="time-grid">
-      <div class="time-slot" onclick="selectTime(this)">8:00</div>
-      <div class="time-slot" onclick="selectTime(this)">8:15</div>
-      <div class="time-slot" onclick="selectTime(this)">8:30</div>
-      <div class="time-slot" onclick="selectTime(this)">8:45</div>
-      <div class="time-slot" onclick="selectTime(this)">9:00</div>
-      <div class="time-slot" onclick="selectTime(this)">9:15</div>
-      <div class="time-slot" onclick="selectTime(this)">9:30</div>
-      <div class="time-slot" onclick="selectTime(this)">9:45</div>
-      <div class="time-slot" onclick="selectTime(this)">10:00</div>
-      <div class="time-slot" onclick="selectTime(this)">10:15</div>
-      <div class="time-slot" onclick="selectTime(this)">10:30</div>
-      <div class="time-slot" onclick="selectTime(this)">10:45</div>
-      <div class="time-slot" onclick="selectTime(this)">11:00</div>
-      <div class="time-slot" onclick="selectTime(this)">11:15</div>
-      <div class="time-slot" onclick="selectTime(this)">11:30</div>
-      <div class="time-slot" onclick="selectTime(this)">11:45</div>
+      <div class="time-slot" data-time="08:00" onclick="selectTime(this)">8:00</div>
+      <div class="time-slot" data-time="08:15" onclick="selectTime(this)">8:15</div>
+      <div class="time-slot" data-time="08:30" onclick="selectTime(this)">8:30</div>
+      <div class="time-slot" data-time="08:45" onclick="selectTime(this)">8:45</div>
+      <div class="time-slot" data-time="09:00" onclick="selectTime(this)">9:00</div>
+      <div class="time-slot" data-time="09:15" onclick="selectTime(this)">9:15</div>
+      <div class="time-slot" data-time="09:30" onclick="selectTime(this)">9:30</div>
+      <div class="time-slot" data-time="09:45" onclick="selectTime(this)">9:45</div>
+      <div class="time-slot" data-time="10:00" onclick="selectTime(this)">10:00</div>
+      <div class="time-slot" data-time="10:15" onclick="selectTime(this)">10:15</div>
+      <div class="time-slot" data-time="10:30" onclick="selectTime(this)">10:30</div>
+      <div class="time-slot" data-time="10:45" onclick="selectTime(this)">10:45</div>
+      <div class="time-slot" data-time="11:00" onclick="selectTime(this)">11:00</div>
+      <div class="time-slot" data-time="11:15" onclick="selectTime(this)">11:15</div>
+      <div class="time-slot" data-time="11:30" onclick="selectTime(this)">11:30</div>
+      <div class="time-slot" data-time="11:45" onclick="selectTime(this)">11:45</div>
     </div>
 
     <div class="section-label">🌙 Tarde</div>
     <div class="time-grid">
-      <div class="time-slot" onclick="selectTime(this)">16:00</div>
-      <div class="time-slot" onclick="selectTime(this)">16:15</div>
-      <div class="time-slot" onclick="selectTime(this)">16:30</div>
-      <div class="time-slot" onclick="selectTime(this)">16:45</div>
-      <div class="time-slot" onclick="selectTime(this)">17:00</div>
-      <div class="time-slot" onclick="selectTime(this)">17:15</div>
-      <div class="time-slot" onclick="selectTime(this)">17:30</div>
-      <div class="time-slot" onclick="selectTime(this)">17:45</div>
-      <div class="time-slot" onclick="selectTime(this)">18:00</div>
-      <div class="time-slot" onclick="selectTime(this)">18:15</div>
-      <div class="time-slot" onclick="selectTime(this)">18:30</div>
-      <div class="time-slot" onclick="selectTime(this)">18:45</div>
-      <div class="time-slot" onclick="selectTime(this)">19:00</div>
-      <div class="time-slot" onclick="selectTime(this)">19:15</div>
-      <div class="time-slot" onclick="selectTime(this)">19:30</div>
+      <div class="time-slot" data-time="16:00" onclick="selectTime(this)">16:00</div>
+      <div class="time-slot" data-time="16:15" onclick="selectTime(this)">16:15</div>
+      <div class="time-slot" data-time="16:30" onclick="selectTime(this)">16:30</div>
+      <div class="time-slot" data-time="16:45" onclick="selectTime(this)">16:45</div>
+      <div class="time-slot" data-time="17:00" onclick="selectTime(this)">17:00</div>
+      <div class="time-slot" data-time="17:15" onclick="selectTime(this)">17:15</div>
+      <div class="time-slot" data-time="17:30" onclick="selectTime(this)">17:30</div>
+      <div class="time-slot" data-time="17:45" onclick="selectTime(this)">17:45</div>
+      <div class="time-slot" data-time="18:00" onclick="selectTime(this)">18:00</div>
+      <div class="time-slot" data-time="18:15" onclick="selectTime(this)">18:15</div>
+      <div class="time-slot" data-time="18:30" onclick="selectTime(this)">18:30</div>
+      <div class="time-slot" data-time="18:45" onclick="selectTime(this)">18:45</div>
+      <div class="time-slot" data-time="19:00" onclick="selectTime(this)">19:00</div>
+      <div class="time-slot" data-time="19:15" onclick="selectTime(this)">19:15</div>
+      <div class="time-slot" data-time="19:30" onclick="selectTime(this)">19:30</div>
     </div>
     <input type="hidden" id="horarioSeleccionado" required>
 
-    <!-- Alerta de Ayuno dinámico -->
     <div class="alert-box" id="alertaAyuno">
       ⚠️ <b>Aviso Importante:</b> Los estudios bioquímicos requieren ayuno sólido de 8-12hs. Solo se permite agua.
     </div>
@@ -302,6 +304,9 @@
 </div>
 
 <script>
+  const API_KEY = 'AIzaSyCA1uw-ajQFcRwHKChgMb7m5sYTUvFii4Y';
+  const CALENDAR_ID = 'biomimeticaveterinaria@gmail.com';
+
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('fechaTurno').setAttribute('min', today);
 
@@ -313,18 +318,51 @@
     document.getElementById('tipoEstudio').value = valor;
 
     const alerta = document.getElementById('alertaAyuno');
-    if (valor.includes('Ayuno')) {
-      alerta.style.display = 'flex';
-    } else {
-      alerta.style.display = 'none';
-    }
+    alerta.style.display = valor.includes('Ayuno') ? 'flex' : 'none';
   }
 
   function selectTime(element) {
+    if (element.classList.contains('disabled')) return;
     document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
     element.classList.add('selected');
-    selectedHora = element.innerText;
+    selectedHora = element.getAttribute('data-time');
     document.getElementById('horarioSeleccionado').value = selectedHora;
+  }
+
+  async function actualizarDisponibilidad() {
+    const fecha = document.getElementById('fechaTurno').value;
+    if (!fecha) return;
+
+    // Resetear botones
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      slot.classList.remove('disabled', 'selected');
+    });
+    selectedHora = '';
+    document.getElementById('horarioSeleccionado').value = '';
+
+    const timeMin = new Date(`${fecha}T00:00:00-03:00`).toISOString();
+    const timeMax = new Date(`${fecha}T23:59:59-03:00`).toISOString();
+
+    const url = `https://www.googleapis.com/content/v1/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.items) {
+        data.items.forEach(event => {
+          if (event.start && event.start.dateTime) {
+            const startHora = event.start.dateTime.split('T')[1].substring(0, 5);
+            const slot = document.querySelector(`.time-slot[data-time="${startHora}"]`);
+            if (slot) {
+              slot.classList.add('disabled');
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.log("No se pudo verificar la disponibilidad automáticamente:", e);
+    }
   }
 
   function enviarTurno(event) {
