@@ -98,6 +98,7 @@
       font-size: 12px;
       color: #005c5c;
       margin-bottom: 15px;
+      line-height: 1.4;
     }
 
     .section-label {
@@ -119,7 +120,7 @@
       background: white;
       border-radius: 10px;
       padding: 8px 0;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: #333;
       cursor: pointer;
@@ -215,8 +216,9 @@
     </div>
 
     <div class="schedule-box">
-      📅 Lunes a Viernes<br>
-      • Sábados 9:00 - 12:00hs
+      <b> Horarios de Atención:</b><br>
+      • Lunes a Viernes: 8:00 - 11:45 hs | 16:00 - 19:30 hs<br>
+      • Sábados: 9:00 - 12:00 hs
     </div>
 
     <div class="section-label">☀️ Mañana</div>
@@ -229,6 +231,14 @@
       <div class="time-slot" onclick="selectTime(this)">9:15</div>
       <div class="time-slot" onclick="selectTime(this)">9:30</div>
       <div class="time-slot" onclick="selectTime(this)">9:45</div>
+      <div class="time-slot" onclick="selectTime(this)">10:00</div>
+      <div class="time-slot" onclick="selectTime(this)">10:15</div>
+      <div class="time-slot" onclick="selectTime(this)">10:30</div>
+      <div class="time-slot" onclick="selectTime(this)">10:45</div>
+      <div class="time-slot" onclick="selectTime(this)">11:00</div>
+      <div class="time-slot" onclick="selectTime(this)">11:15</div>
+      <div class="time-slot" onclick="selectTime(this)">11:30</div>
+      <div class="time-slot" onclick="selectTime(this)">11:45</div>
     </div>
 
     <div class="section-label">🌙 Tarde</div>
@@ -241,6 +251,13 @@
       <div class="time-slot" onclick="selectTime(this)">17:15</div>
       <div class="time-slot" onclick="selectTime(this)">17:30</div>
       <div class="time-slot" onclick="selectTime(this)">17:45</div>
+      <div class="time-slot" onclick="selectTime(this)">18:00</div>
+      <div class="time-slot" onclick="selectTime(this)">18:15</div>
+      <div class="time-slot" onclick="selectTime(this)">18:30</div>
+      <div class="time-slot" onclick="selectTime(this)">18:45</div>
+      <div class="time-slot" onclick="selectTime(this)">19:00</div>
+      <div class="time-slot" onclick="selectTime(this)">19:15</div>
+      <div class="time-slot" onclick="selectTime(this)">19:30</div>
     </div>
     <input type="hidden" id="horarioSeleccionado" required>
 
@@ -280,7 +297,6 @@
 </div>
 
 <script>
-  // Bloquear fechas pasadas en el calendario
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('fechaTurno').setAttribute('min', today);
 
@@ -321,7 +337,6 @@
       return;
     }
 
-    // Redirección a Google Calendar
     window.open("https://calendar.app.google/L5FYceufNSvzj2sWA", "_blank");
   }
 </script>
