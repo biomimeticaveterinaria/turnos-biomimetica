@@ -183,6 +183,7 @@
       transition: 0.2s;
     }
     .btn-submit:hover { background-color: var(--primary-dark); }
+    .btn-submit:disabled { background-color: #a0aec0; cursor: not-allowed; }
 
     /* Pantalla de Confirmación */
     .confirmation-container {
@@ -371,14 +372,14 @@
       <input type="text" id="motivo" placeholder="Breve descripción (ej. Análisis prequirúrgico)">
     </div>
 
-    <button type="submit" class="btn-submit">CONFIRMAR Y AGENDAR TURNO</button>
+    <button type="submit" id="btnSubmit" class="btn-submit">CONFIRMAR Y AGENDAR TURNO</button>
   </form>
 
-  <!-- PANTALLA DE CONFIRMACIÓN LOCAL -->
+  <!-- PANTALLA DE CONFIRMACIÓN -->
   <div class="confirmation-container" id="confirmationCard">
     <div class="success-icon">✓</div>
     <div class="confirm-title">¡Turno Registrado!</div>
-    <div class="confirm-subtitle">Su solicitud ha sido reservada correctamente.</div>
+    <div class="confirm-subtitle">Su solicitud ha sido reservada correctamente en nuestra agenda.</div>
 
     <div class="details-box">
       <div class="details-row">
@@ -417,6 +418,7 @@
 <script>
   const API_KEY = 'AIzaSyCA1uw-ajQFcRwHKChgMb7m5sYTUvFii4Y';
   const CALENDAR_ID = 'biomimeticaveterinaria@gmail.com';
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZnzwHK6cr6b_NfLk3j0dsTWcnPRJ-0P9cG-oSTYm0jg4iUsXPUBTsfGx4PkYmii1TnQ/exec';
 
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('fechaTurno').setAttribute('min', today);
@@ -444,7 +446,6 @@
     const fecha = document.getElementById('fechaTurno').value;
     if (!fecha) return;
 
-    // Resetear botones
     document.querySelectorAll('.time-slot').forEach(slot => {
       slot.classList.remove('disabled', 'selected');
     });
@@ -476,7 +477,7 @@
     }
   }
 
-  function enviarTurno(event) {
+  async function enviarTurno(event) {
     event.preventDefault();
 
     const fechaVal = document.getElementById('fechaTurno').value;
@@ -490,16 +491,43 @@
       return;
     }
 
+    const submitBtn = document.getElementById('btnSubmit');
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'PROCESANDO RESERVA...';
+
     const tutor = document.getElementById('tutor').value;
+    const telefono = document.getElementById('telefono').value;
     const mascota = document.getElementById('mascota').value;
     const tipoMascota = document.getElementById('tipoMascota').value;
     const estudio = document.getElementById('tipoEstudio').value;
+    const motivo = document.getElementById('motivo').value;
 
-    // Formatear Fecha (AAAA-MM-DD -> DD/MM/AAAA)
+    const payload = {
+      fecha: fechaVal,
+      hora: selectedHora,
+      tutor: tutor,
+      telefono: telefono,
+      mascota: mascota,
+      tipoMascota: tipoMascota,
+      estudio: estudio,
+      motivo: motivo
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.log('Error enviando a Google Calendar:', err);
+    }
+
+    // Formatear Fecha para mostrar
     const partesFecha = fechaVal.split('-');
     const fechaFormateada = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
 
-    // Completar pantalla de confirmación
     document.getElementById('cFecha').innerText = fechaFormateada;
     document.getElementById('cHora').innerText = `${selectedHora} hs`;
     document.getElementById('cEstudio').innerText = estudio.split(' - ')[0];
@@ -513,7 +541,6 @@
       ayunoText.innerHTML = '✨ <i>Este estudio no requiere ayuno previo.</i>';
     }
 
-    // Cambiar vista
     document.getElementById('bookingForm').style.display = 'none';
     document.getElementById('confirmationCard').style.display = 'block';
     document.getElementById('bannerTitle').innerText = '✅ Turno Confirmado';
@@ -523,11 +550,14 @@
 
   function resetFormulario() {
     document.getElementById('bookingForm').reset();
+    const submitBtn = document.getElementById('btnSubmit');
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'CONFIRMAR Y AGENDAR TURNO';
+
     document.getElementById('bookingForm').style.display = 'block';
     document.getElementById('confirmationCard').style.display = 'none';
     document.getElementById('bannerTitle').innerText = '📅 Agenda de Turnos';
     
-    // Restablecer selección inicial
     selectStudy(document.querySelectorAll('.study-btn')[0], 'BIOQUÍMICO - Ayuno Obligatorio');
     document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected', 'disabled'));
     selectedHora = '';
