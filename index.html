@@ -39,25 +39,20 @@
       text-align: center;
       padding: 20px 15px 10px;
     }
-    .logo-placeholder {
-      font-weight: bold;
-      color: var(--primary);
-      font-size: 22px;
-      letter-spacing: 1px;
+    .header img {
+      max-width: 260px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
-    .subtitle {
-      color: #7f8c8d;
-      font-size: 13px;
-      margin-top: 2px;
-    }
+
     .title-banner {
       background-color: var(--primary);
       color: white;
       text-align: center;
-      padding: 10px;
+      padding: 12px;
       font-weight: 600;
       font-size: 18px;
-      margin-top: 15px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -197,9 +192,9 @@
 <body>
 
 <div class="booking-card">
+  <!-- Encabezado con Logo -->
   <div class="header">
-    <div class="logo-placeholder">BIOMIMÉTICA</div>
-    <div class="subtitle">Salud, Ciencia y Tecnología | Diagnósticos Veterinarios</div>
+    <img src="WhatsApp imagen 2026-09-04 at 2.25.19 PM(1).jpeg" alt="BIOMIMÉTICA Diagnósticos Veterinarios">
   </div>
 
   <div class="title-banner">
@@ -208,6 +203,7 @@
 
   <form id="bookingForm" class="form-body" onsubmit="enviarTurno(event)">
     
+    <!-- Paso 1: Tipo de Estudio -->
     <div class="step-title">Paso 1: Selecciona el tipo de estudio</div>
     <div class="study-options">
       <div class="study-btn active" onclick="selectStudy(this, 'BIOQUÍMICO - Ayuno Obligatorio')">
@@ -219,6 +215,7 @@
     </div>
     <input type="hidden" id="tipoEstudio" value="BIOQUÍMICO - Ayuno Obligatorio">
 
+    <!-- Paso 2: Horarios -->
     <div class="step-title">Paso 2: Horarios Disponibles</div>
     <div class="schedule-box">
       📅 Lunes a Viernes<br>
@@ -250,10 +247,12 @@
     </div>
     <input type="hidden" id="horarioSeleccionado" required>
 
+    <!-- Alerta de Ayuno dinámico -->
     <div class="alert-box" id="alertaAyuno">
       ⚠️ <b>Aviso Importante:</b> Los estudios bioquímicos requieren ayuno sólido de 8-12hs. Solo se permite agua.
     </div>
 
+    <!-- Formulario Paciente -->
     <div class="input-group">
       <label for="tutor">Nombre del tutor</label>
       <input type="text" id="tutor" placeholder="Ingresa el nombre completo" required>
@@ -314,22 +313,8 @@
       return;
     }
 
-    const estudio = document.getElementById('tipoEstudio').value;
-    const tutor = document.getElementById('tutor').value;
-    const mascota = document.getElementById('mascota').value;
-    const tipo = document.getElementById('tipoMascota').value;
-    const motivo = document.getElementById('motivo').value;
-
-    // Redirección directa a WhatsApp con el mensaje estructurado para el laboratorio
-    const telefonoLab = "5490000000000"; // Reemplaza con el WhatsApp del laboratorio
-    const mensaje = `*SOLICITUD DE TURNO - BIOMIMÉTICA*%0A%0A` +
-      `*Estudio:* ${estudio}%0A` +
-      `*Horario deseado:* ${selectedHora} hs%0A` +
-      `*Tutor:* ${tutor}%0A` +
-      `*Mascota:* ${mascota} (${tipo})%0A` +
-      `*Motivo:* ${motivo}`;
-
-    window.open(`https://wa.me/${telefonoLab}?text=${mensaje}`, '_blank');
+    // Redirección a la agenda de Google Calendar
+    window.open("https://calendar.app.google/L5FYceufNSvzj2sWA", "_blank");
   }
 </script>
 
