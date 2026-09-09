@@ -442,45 +442,48 @@
     document.getElementById('horarioSeleccionado').value = selectedHora;
   }
 
-  async function actualizarDisponibilidad() {
-    const fecha = document.getElementById('fechaTurno').value;
-    if (!fecha) return;
+async function actualizarDisponibilidad() {
+  const fecha = document.getElementById('fechaTurno').value;
+  if (!fecha) return;
 
-    // Limpiar selecciones previas
-    document.querySelectorAll('.time-slot').forEach(slot => {
-      slot.classList.remove('disabled', 'selected');
-    });
-    selectedHora = '';
-    document.getElementById('horarioSeleccionado').value = '';
+  // 1. Limpiar selecciones previas
+  document.querySelectorAll('.time-slot').forEach(slot => {
+    slot.classList.remove('disabled', 'selected');
+  });
+  selectedHora = '';
+  document.getElementById('horarioSeleccionado').value = '';
 
-    // Rango del día completo
-    const timeMin = new Date(`${fecha}T00:00:00`).toISOString();
-    const timeMax = new Date(`${fecha}T23:59:59`).toISOString();
+  // 2. Rango de consulta para todo el día seleccionado
+  const timeMin = new Date(`${fecha}T00:00:00-03:00`).toISOString();
+  const timeMax = new Date(`${fecha}T23:59:59-03:00`).toISOString();
 
-    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&singleEvents=true`;
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&singleEvents=true`;
 
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
 
-      if (data.items && data.items.length > 0) {
-        data.items.forEach(event => {
-          if (event.start) {
-            const startString = event.start.dateTime || event.start.date;
-            if (startString.includes('T')) {
-              const dateObj = new Date(startString);
-              const horas = String(dateObj.getHours()).padStart(2, '0');
-              const minutos = String(dateObj.getMinutes()).padStart(2, '0');
-              const horaFormateada = `${horas}:${minutos}`;
+    if (data.items && data.items.length > 0) {
+      data.items.forEach(event => {
+        if (event.start) {
+          const startString = event.start.dateTime || event.start.date;
+          if (startString.includes('T')) {
+            // Extraer HH:mm directamente del texto ISO para evitar desfases de zona horaria
+            const horaOcupada = startString.split('T')[1].substring(0, 5);
 
-              const slot = document.querySelector(`.time-slot[data-time="${horaFormateada}"]`);
-              if (slot) {
-                slot.classList.add('disabled');
-              }
+            // Deshabilitar el botón en la web
+            const slot = document.querySelector(`.time-slot[data-time="${horaOcupada}"]`);
+            if (slot) {
+              slot.classList.add('disabled');
             }
           }
-        });
-      }
+        }
+      });
+    }
+  } catch (e) {
+    console.error("Error al consultar disponibilidad:", e);
+  }
+}
     } catch (e) {
       console.error("No se pudo verificar la disponibilidad automáticamente:", e);
     }
