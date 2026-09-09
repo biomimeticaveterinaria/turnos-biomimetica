@@ -442,22 +442,23 @@
     document.getElementById('horarioSeleccionado').value = selectedHora;
   }
 
-async function actualizarDisponibilidad() {
+function actualizarDisponibilidad() {
   const fecha = document.getElementById('fechaTurno').value;
   if (!fecha) return;
 
-  // Limpiar estados previos
+  // 1. Resetear todos los botones a habilitados
   document.querySelectorAll('.time-slot').forEach(slot => {
     slot.classList.remove('disabled', 'selected');
   });
   selectedHora = '';
   document.getElementById('horarioSeleccionado').value = '';
 
-  try {
-    const response = await fetch(`${SCRIPT_URL}?fecha=${fecha}`);
-    const data = await response.json();
+  // 2. Consultar usando un script dinámico para evitar bloqueos del navegador (CORS)
+  const oldScript = document.getElementById('jsonp-script');
+  if (oldScript) oldScript.remove();
 
-    if (data.result === 'success' && data.busy) {
+  window.procesarDisponibilidad = function(data) {
+    if (data && data.result === 'success' && data.busy) {
       data.busy.forEach(horaOcupada => {
         const slot = document.querySelector(`.time-slot[data-time="${horaOcupada}"]`);
         if (slot) {
@@ -465,104 +466,13 @@ async function actualizarDisponibilidad() {
         }
       });
     }
-  } catch (e) {
-    console.log("No se pudo cargar la disponibilidad:", e);
-  }
+  };
+
+  const script = document.createElement('script');
+  script.id = 'jsonp-script';
+  script.src = `${SCRIPT_URL}?fecha=${fecha}&callback=procesarDisponibilidad`;
+  document.body.appendChild(script);
 }
-  } catch (e) {
-    console.error("Error al consultar disponibilidad:", e);
-  }
-}
-    } catch (e) {
-      console.error("No se pudo verificar la disponibilidad automáticamente:", e);
-    }
-  }
-
-  async function enviarTurno(event) {
-    event.preventDefault();
-
-    const fechaVal = document.getElementById('fechaTurno').value;
-    if (!fechaVal) {
-      alert('Por favor selecciona el día para el turno.');
-      return;
-    }
-
-    if (!selectedHora) {
-      alert('Por favor selecciona un horario disponible.');
-      return;
-    }
-
-    const submitBtn = document.getElementById('btnSubmit');
-    submitBtn.disabled = true;
-    submitBtn.innerText = 'PROCESANDO RESERVA...';
-
-    const tutor = document.getElementById('tutor').value;
-    const telefono = document.getElementById('telefono').value;
-    const mascota = document.getElementById('mascota').value;
-    const tipoMascota = document.getElementById('tipoMascota').value;
-    const estudio = document.getElementById('tipoEstudio').value;
-    const motivo = document.getElementById('motivo').value;
-
-    const payload = {
-      fecha: fechaVal,
-      hora: selectedHora,
-      tutor: tutor,
-      telefono: telefono,
-      mascota: mascota,
-      tipoMascota: tipoMascota,
-      estudio: estudio,
-      motivo: motivo
-    };
-
-    try {
-      await fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    } catch (err) {
-      console.log('Error enviando a Google Calendar:', err);
-    }
-
-    // Formatear Fecha para mostrar
-    const partesFecha = fechaVal.split('-');
-    const fechaFormateada = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
-
-    document.getElementById('cFecha').innerText = fechaFormateada;
-    document.getElementById('cHora').innerText = `${selectedHora} hs`;
-    document.getElementById('cEstudio').innerText = estudio.split(' - ')[0];
-    document.getElementById('cMascota').innerText = `${mascota} (${tipoMascota})`;
-    document.getElementById('cTutor').innerText = tutor;
-
-    const ayunoText = document.getElementById('cAyunoNotice');
-    if (estudio.includes('Ayuno')) {
-      ayunoText.innerHTML = '⚠️ <b>Recordatorio:</b> Presentarse con <b>8 a 12 hs de ayuno sólido</b> (solo agua permitida).';
-    } else {
-      ayunoText.innerHTML = '✨ <i>Este estudio no requiere ayuno previo.</i>';
-    }
-
-    document.getElementById('bookingForm').style.display = 'none';
-    document.getElementById('confirmationCard').style.display = 'block';
-    document.getElementById('bannerTitle').innerText = '✅ Turno Confirmado';
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function resetFormulario() {
-    document.getElementById('bookingForm').reset();
-    const submitBtn = document.getElementById('btnSubmit');
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'CONFIRMAR Y AGENDAR TURNO';
-
-    document.getElementById('bookingForm').style.display = 'block';
-    document.getElementById('confirmationCard').style.display = 'none';
-    document.getElementById('bannerTitle').innerText = '📅 Agenda de Turnos';
-    
-    selectStudy(document.querySelectorAll('.study-btn')[0], 'BIOQUÍMICO - Ayuno Obligatorio');
-    document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected', 'disabled'));
-    selectedHora = '';
-  }
 </script>
 
 </body>
