@@ -416,8 +416,6 @@
 </div>
 
 <script>
-  const API_KEY = 'AIzaSyCA1uw-ajQFcRwHKChgMb7m5sYTUvFii4Y';
-  const CALENDAR_ID = 'biomimeticaveterinaria@gmail.com';
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZnzwHK6cr6b_NfLk3j0dsTWcnPRJ-0P9cG-oSTYm0jg4iUsXPUBTsfGx4PkYmii1TnQ/exec';
 
   const today = new Date().toISOString().split('T')[0];
@@ -442,38 +440,105 @@
     document.getElementById('horarioSeleccionado').value = selectedHora;
   }
 
-function actualizarDisponibilidad() {
-  const fecha = document.getElementById('fechaTurno').value;
-  if (!fecha) return;
+  function actualizarDisponibilidad() {
+    const fecha = document.getElementById('fechaTurno').value;
+    if (!fecha) return;
 
-  // 1. Resetear todos los botones a habilitados
-  document.querySelectorAll('.time-slot').forEach(slot => {
-    slot.classList.remove('disabled', 'selected');
-  });
-  selectedHora = '';
-  document.getElementById('horarioSeleccionado').value = '';
+    // Resetear todos los botones a habilitados
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      slot.classList.remove('disabled', 'selected');
+    });
+    selectedHora = '';
+    document.getElementById('horarioSeleccionado').value = '';
 
-  // 2. Consultar usando un script dinámico para evitar bloqueos del navegador (CORS)
-  const oldScript = document.getElementById('jsonp-script');
-  if (oldScript) oldScript.remove();
+    // Consultar mediante JSONP
+    const oldScript = document.getElementById('jsonp-script');
+    if (oldScript) oldScript.remove();
 
-  window.procesarDisponibilidad = function(data) {
-    if (data && data.result === 'success' && data.busy) {
-      data.busy.forEach(horaOcupada => {
-        const slot = document.querySelector(`.time-slot[data-time="${horaOcupada}"]`);
-        if (slot) {
-          slot.classList.add('disabled');
-        }
-      });
+    window.procesarDisponibilidad = function(data) {
+      if (data && data.result === 'success' && data.busy) {
+        data.busy.forEach(horaOcupada => {
+          const slot = document.querySelector(`.time-slot[data-time="${horaOcupada}"]`);
+          if (slot) {
+            slot.classList.add('disabled');
+          }
+        });
+      }
+    };
+
+    const script = document.createElement('script');
+    script.id = 'jsonp-script';
+    script.src = `${SCRIPT_URL}?fecha=${fecha}&callback=procesarDisponibilidad`;
+    document.body.appendChild(script);
+  }
+
+  async function enviarTurno(event) {
+    if (event) event.preventDefault();
+
+    const fechaVal = document.getElementById('fechaTurno').value;
+    if (!fechaVal) {
+      alert('Por favor selecciona el día para el turno.');
+      return;
     }
-  };
 
-  const script = document.createElement('script');
-  script.id = 'jsonp-script';
-  script.src = `${SCRIPT_URL}?fecha=${fecha}&callback=procesarDisponibilidad`;
-  document.body.appendChild(script);
-}
+    if (!selectedHora) {
+      alert('Por favor selecciona un horario disponible.');
+      return;
+    }
+
+    const submitBtn = document.getElementById('btnSubmit');
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'PROCESANDO RESERVA...';
+
+    const tutor = document.getElementById('tutor').value;
+    const telefono = document.getElementById('telefono').value;
+    const mascota = document.getElementById('mascota').value;
+    const tipoMascota = document.getElementById('tipoMascota').value;
+    const estudio = document.getElementById('tipoEstudio').value;
+    const motivo = document.getElementById('motivo').value;
+
+    const payload = {
+      fecha: fechaVal,
+      hora: selectedHora,
+      tutor: tutor,
+      telefono: telefono,
+      mascota: mascota,
+      tipoMascota: tipoMascota,
+      estudio: estudio,
+      motivo: motivo
+    };
+
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.log('Error enviando reserva:', err);
+    }
+
+    const partesFecha = fechaVal.split('-');
+    const fechaFormateada = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+
+    document.getElementById('cFecha').innerText = fechaFormateada;
+    document.getElementById('cHora').innerText = `${selectedHora} hs`;
+    document.getElementById('cEstudio').innerText = estudio.split(' - ')[0];
+    document.getElementById('cMascota').innerText = `${mascota} (${tipoMascota})`;
+    document.getElementById('cTutor').innerText = tutor;
+
+    const ayunoText = document.getElementById('cAyunoNotice');
+    if (estudio.includes('Ayuno')) {
+      ayunoText.innerHTML = '⚠️ <b>Recordatorio:</b> Presentarse con <b>8 a 12 hs de ayuno sólido</b> (solo agua permitida).';
+    } else {
+      ayunoText.innerHTML = '✨ <i>Este estudio no requiere ayuno previo.</i>';
+    }
+
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('confirmationCard').style.display = 'block';
+    document.getElementById('bannerTitle').innerText = '✅ Turno Confirmado';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 </script>
-
-</body>
-</html>
